@@ -14,28 +14,34 @@ import (
 func main() {
 	f, err := os.Open("input.txt")
 	if err != nil {
-		log.Fatal("Could not read file")
+		log.Fatal(err)
 	}
 	defer f.Close()
 
 	reader := bufio.NewScanner(f)
-	left := []int{}
-	right := []int{}
+	var left []int
+	var right []int
 	for reader.Scan() {
 		str := reader.Text()
 		splitted := strings.Split(str, "   ")
-		leftv, _ := strconv.ParseInt(splitted[0], 10, 32)
-		rightv, _ := strconv.ParseInt(splitted[1], 10, 32)
+		leftv, err := strconv.ParseInt(splitted[0], 10, 32)
+		if err != nil {
+			log.Fatal(err)
+		}
+		rightv, err := strconv.ParseInt(splitted[1], 10, 32)
+		if err != nil {
+			log.Fatal(err)
+		}
 		left = append(left, int(leftv))
 		right = append(right, int(rightv))
 	}
 
 	slices.Sort(left)
 	slices.Sort(right)
-	diff := 0.0
+	diff := 0
 	simScore := 0
 	for idx := range left {
-		diff += math.Abs(float64(left[idx]) - float64(right[idx]))
+		diff += int(math.Abs(float64(left[idx]) - float64(right[idx])))
 	}
 	for _, l := range left {
 		for _, r := range right {
@@ -44,6 +50,6 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(diff)
-	fmt.Println(simScore)
+	fmt.Printf("Part one: %d\n", diff)
+	fmt.Printf("Part two: %d\n", simScore)
 }
