@@ -9,23 +9,36 @@ import (
 	"strings"
 )
 
-func checkSafe(l *[]int, res chan<- bool, badIndex chan<- int, diffF func(d int) bool) {
-	for i := range *l {
-		if i == len(*l)-1 {
-			res <- true
-			return
+func checkSafe(l []int, resChan chan<- bool) []int {
+	banList := make([]int, 0)
+	var DiffF func(int) bool
+	if l[0] < l[1] {
+		DiffF = func(d int) bool {return d <= 3 && d >= 1}
+	} else if l[0] > l[1] {
+		DiffF = func(d int) bool {return -d <= 3 && -d >= 1}
+	} else {
+		if resChan != nil {
+			resChan <- false
 		}
-		diff := (*l)[i+1] - (*l)[i]
-		if diffF(diff) {
+		banList = append(banList, 0, 1, 2)
+		return banList
+	}
+	for i := 0; i < len(l)-1; i++ {
+		diff := l[i+1] - l[i]
+		if DiffF(diff) {
 			continue
 		} else {
-			res <- false
-			if badIndex != nil {
-				badIndex <- i + 1
+			if resChan != nil {
+				resChan <- false
 			}
-			return
+			banList = append(banList, 0, i, i+1)
+			return banList
 		}
 	}
+	if resChan != nil {
+		resChan <- true
+	}
+	return nil
 }
 
 func Map(l []string) []int {
@@ -38,6 +51,12 @@ func Map(l []string) []int {
 		l_i[i] = int(parsed)
 	}
 	return l_i
+}
+
+func removeElement(l []int, i int) []int {
+	newL := make([]int, 0)
+	newL = append(newL, l[:i]...)
+	return append(newL, l[i+1:]...)
 }
 
 func main() {
@@ -56,48 +75,21 @@ func main() {
 		l := strings.Split(b.Text(), " ")
 		toCheck := Map(l)
 
-		resIncChan := make(chan bool, 2)
-		resDecChan := make(chan bool, 2)
-		indexIncChan := make(chan int)
-		indexDecChan := make(chan int)
-
-		go checkSafe(&toCheck, resIncChan, indexIncChan, func(d int) bool { return d <= 3 && d >= 1 })
-		go checkSafe(&toCheck, resDecChan, indexDecChan, func(d int) bool { return -d <= 3 && -d >= 1 })
-		resInc := <-resIncChan
-		resDec := <-resDecChan
-		if resInc || resDec {
-			count++
-			countDamp++
-		} else {
-			index1 := <-indexIncChan
-			fmt.Println(index1)
-			index2 := <-indexDecChan
-			l_new_inc := make([]int, 0)
-			l_new_inc = append(l_new_inc, toCheck[:index1]...)
-			l_new_inc = append(l_new_inc, toCheck[index1+1:]...)
-			l_new_dec := make([]int, 0)
-			l_new_dec = append(l_new_dec, toCheck[:index2]...)
-			l_new_dec = append(l_new_dec, toCheck[index2+1:]...)
-			fmt.Println(l_new_inc)
-			fmt.Println(l_new_dec)
-			go checkSafe(&l_new_inc, resIncChan, nil, func(d int) bool { return d <= 3 && d >= 1 })
-			go checkSafe(&l_new_dec, resIncChan, nil, func(d int) bool { return d <= 3 && d >= 1 })
-			go checkSafe(&l_new_inc, resDecChan, nil, func(d int) bool { return -d <= 3 && -d >= 1 })
-			go checkSafe(&l_new_dec, resDecChan, nil, func(d int) bool { return -d <= 3 && -d >= 1 })
-			for range 2 {
-				resInc = <-resIncChan
-				fmt.Println(resInc)
-				resDec = <-resDecChan
-				if resInc || resDec {
+		banList := checkSafe(toCheck, nil)
+		if banList != nil {
+			for _, i := range banList {
+				newBanList := checkSafe(removeElement(toCheck, i), nil)
+				if newBanList == nil {
 					countDamp++
 					break
 				}
 			}
-
+		} else {
+			count++
 		}
 	}
 
 	fmt.Printf("Part one: %d\n", count)
-	fmt.Printf("Part two: %d\n", countDamp)
+	fmt.Printf("Part two: %d\n", countDamp+count)
 
 }
