@@ -44,11 +44,11 @@ func checkSafe(l []int, resChan chan<- bool) []int {
 func Map(l []string) []int {
 	l_i := make([]int, len(l))
 	for i, c := range l {
-		parsed, err := strconv.ParseInt(c, 10, 64)
+		parsed, err := strconv.Atoi(c)
 		if err != nil {
 			log.Fatal(err)
 		}
-		l_i[i] = int(parsed)
+		l_i[i] = parsed
 	}
 	return l_i
 }
@@ -74,7 +74,6 @@ func main() {
 	for b.Scan() {
 		l := strings.Split(b.Text(), " ")
 		toCheck := Map(l)
-
 		banList := checkSafe(toCheck, nil)
 		if banList != nil {
 			for _, i := range banList {
@@ -91,5 +90,4 @@ func main() {
 
 	fmt.Printf("Part one: %d\n", count)
 	fmt.Printf("Part two: %d\n", countDamp+count)
-
 }

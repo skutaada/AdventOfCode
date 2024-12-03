@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -17,16 +15,8 @@ const (
 
 func handleMul(exp []byte) int {
 	toStr := string(exp)
-	toStr = strings.Trim(toStr, "mul()")
-	res := strings.Split(toStr, ",")
-	left, err := strconv.Atoi(res[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	right, err := strconv.Atoi(res[1])
-	if err != nil {
-		log.Fatal(err)
-	}
+	var left, right int
+	fmt.Sscanf(toStr, "mul(%d,%d)", &left, &right)
 	return left*right
 }
 

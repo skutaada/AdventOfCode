@@ -1,4 +1,4 @@
-package day1
+package main
 
 import (
 	"bufio"
@@ -7,8 +7,6 @@ import (
 	"math"
 	"os"
 	"slices"
-	"strconv"
-	"strings"
 )
 
 func main() {
@@ -23,17 +21,10 @@ func main() {
 	var right []int
 	for reader.Scan() {
 		str := reader.Text()
-		splitted := strings.Split(str, "   ")
-		leftv, err := strconv.ParseInt(splitted[0], 10, 32)
-		if err != nil {
-			log.Fatal(err)
-		}
-		rightv, err := strconv.ParseInt(splitted[1], 10, 32)
-		if err != nil {
-			log.Fatal(err)
-		}
-		left = append(left, int(leftv))
-		right = append(right, int(rightv))
+		var leftv, rightv int
+		fmt.Sscanf(str, "%d   %d", &leftv, &rightv)
+		left = append(left, leftv)
+		right = append(right, rightv)
 	}
 
 	slices.Sort(left)
