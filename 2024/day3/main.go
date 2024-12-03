@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DO = "do()"
+	DO   = "do()"
 	DONT = "don't()"
 )
 
@@ -17,7 +17,7 @@ func handleMul(exp []byte) int {
 	toStr := string(exp)
 	var left, right int
 	fmt.Sscanf(toStr, "mul(%d,%d)", &left, &right)
-	return left*right
+	return left * right
 }
 
 func main() {
@@ -53,9 +53,6 @@ func main() {
 			sumEn += handleMul(exp)
 		}
 	}
-
-
-
 	fmt.Printf("Part one: %d\n", sum)
 	fmt.Printf("Part two: %d\n", sumEn)
 }
